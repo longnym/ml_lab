@@ -4,22 +4,26 @@ summary(train)
 codes <- list()
 codes[['ExterQual']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')
 codes[['ExterCond']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')
-codes[['BsmtQual']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')  # exist NA
-codes[['BsmtCond']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')  # exist NA
-codes[['BsmtExposure']] <- c('No', 'Mn', 'Av', 'Gd')  # exist NA
-codes[['BsmtFinType1']] <- c('Unf', 'LwQ', 'Rec', 'BLQ', 'ALQ', 'GLQ')  # exist NA
-codes[['BsmtFinType2']] <- c('Unf', 'LwQ', 'Rec', 'BLQ', 'ALQ', 'GLQ')  # exist NA
+codes[['BsmtQual']] <- c('NA', 'Po', 'Fa', 'TA', 'Gd', 'Ex')
+codes[['BsmtCond']] <- c('NA', 'Po', 'Fa', 'TA', 'Gd', 'Ex')
+codes[['BsmtExposure']] <- c('NA', 'No', 'Mn', 'Av', 'Gd')
+codes[['BsmtFinType1']] <- c('NA', 'Unf', 'LwQ', 'Rec', 'BLQ', 'ALQ', 'GLQ')
+codes[['BsmtFinType2']] <- c('NA', 'Unf', 'LwQ', 'Rec', 'BLQ', 'ALQ', 'GLQ')
 codes[['HeatingQC']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')
 codes[['KitchenQual']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')
-codes[['FireplaceQu']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex') # exist NA
-codes[['GarageQual']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')  # exist NA
-codes[['GarageCond']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')  # exist NA
-codes[['PoolQC']] <- c('Fa', 'TA', 'Gd', 'Ex')  # exist NA
+codes[['FireplaceQu']] <- c('NA', 'Po', 'Fa', 'TA', 'Gd', 'Ex')
+codes[['GarageQual']] <- c('NA', 'Po', 'Fa', 'TA', 'Gd', 'Ex')
+codes[['GarageCond']] <- c('NA', 'Po', 'Fa', 'TA', 'Gd', 'Ex')
+codes[['PoolQC']] <- c('NA', 'Fa', 'TA', 'Gd', 'Ex')
 
 codeToNum <- function(table, column) {
   result <- c()
   for (i in 1:nrow(table)) {
-    index <- ifelse(is.na(table[i,column]), 0, which(codes[[column]] == table[i,column]))
+    if (is.na(table[i,column])) {
+      index <- which(codes[[column]] == 'NA')
+    } else {
+      index <- which(codes[[column]] == table[i,column])
+    }
     result <- c(result, c(index))
   }
   result
