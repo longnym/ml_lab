@@ -141,13 +141,13 @@ BldgType: 주거 유형
 HouseStyle: 주거 양식
 
        1Story	1층
-       1.5Fin	1.5층: 2nd level finished
-       1.5Unf	1.5층: 2nd level unfinished
+       1.5Fin	1.5층: 두번째 층이 완성됨
+       1.5Unf	1.5층: 두번째 층이 미완성됨
        2Story	2층
-       2.5Fin	2.5층: 2nd level finished
-       2.5Unf	2.5층: 2nd level unfinished
-       SFoyer	현관 분리 - 층 분리와 유사함
-       SLvl     층 분리 - 현관 계단을 중간층으로 위 아래층으로 진입
+       2.5Fin	2.5층: 두번째 층이 완성됨
+       2.5Unf	2.5층: 두번째 층이 미완성됨
+       SFoyer	현관 분리 - 현관 계단을 기준으로 위 아래층 거주공간으로 진입
+       SLvl     층 분리 - 한 층을 기준으로 위 아래층 거주공간으로 진입
 
 OverallQual: 집 전체 재료와 마감 평가
 
@@ -418,7 +418,7 @@ GarageType: 차고 위치
        BuiltIn	빌트 인 (집의 차고 부분 - 차고위에 방이 있음)
        CarPort	자동차용 포트
        Detchd	집에서 분리되어 있음
-       NA	    차고 없음
+       NA	차고 없음
 
 GarageYrBlt: 차고 건설 연도
 
@@ -483,7 +483,7 @@ Fence: 울타리 품질
        MnPrv	최소한의 사생활 보호
        GdWo     좋은 나무
        MnWw     최소한의 나무/철사
-       NA       울타리 없음
+       NA       울타리 없음
 
 MiscFeature: 다른 범주에 없는 기타 특징
 
@@ -502,12 +502,12 @@ YrSold: 매각 년도 (YYYY)
 
 SaleType: 판매 유형
 
-       WD 	    보증 증서 - 전통적인
-       CWD	    보증 증서 - 현금
-       VWD	    보증 증서 - 재향 군인부 보증 모기지 대출
-       New	    주택 건설 즉시 판매
-       COD	    법원 직원 증서/부동산
-       Con	    15% 계약금의 정기적인 지급 기한 계약서
+       WD 	보증 증서 - 전통적인
+       CWD	보증 증서 - 현금
+       VWD	보증 증서 - 재향 군인부 보증 모기지 대출
+       New	주택 건설 즉시 판매
+       COD	법원 직원 증서/부동산
+       Con	15% 계약금의 정기적인 지급 기한 계약서
        ConLw	낮은 계약금과 낮은 이율 계약서
        ConLI	낮은 이율 계약서
        ConLD	낮은 계약금 계약서
