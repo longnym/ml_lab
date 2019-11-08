@@ -195,7 +195,7 @@ RoofMatl: 지붕 재료
        Membran	양피지
        Metal	금속
        Roll     두루마리
-       Tar&Grv	지갈 & 타르
+       Tar&Grv	자갈 & 타르
        WdShake	틈이 있는 나무
        WdShngl	나무 널판
 
