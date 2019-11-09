@@ -28,7 +28,7 @@ MSZoning: 판매의 일반적인 구역 분류
        RP   넓은 골짜기의 저밀도 거주지
        RM   중밀도 거주지
 
-LotFrontage: 도로에서 부지까지의 직선 거리 (피트)
+LotFrontage: 도로에 물려있는 부지의 직선 거리 (피트)
 
 LotArea: 부지 면적 (제곱 피트)
 
