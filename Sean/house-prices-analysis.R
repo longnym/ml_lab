@@ -1,5 +1,4 @@
 train <- read.csv('train.csv')
-summary(train)
 
 codes <- list()
 codes[['ExterQual']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')
@@ -29,6 +28,29 @@ codeToNum <- function(table, column) {
   result
 }
 
+# change factor to category(ordinal)
 for (n in names(codes)) {
   train[n] <- codeToNum(train, n)
 }
+
+# change numeric to factor
+train$MSSubClass = as.factor(train$MSSubClass)
+
+# Impute NA's of MasVnrType, MasVnrArea
+train[is.na(train$MasVnrType),]$MasVnrArea <- 0
+train[is.na(train$MasVnrType),]$MasVnrType <- 'None'
+
+# impute NA's of LotFrantage (Simple Linier Regression)
+train_lf_missing <- train[is.na(train$LotFrontage),]
+train_lf_no_missing <- train[!is.na(train$LotFrontage),]
+
+lf_model <- lm(LotFrontage ~ LotArea, data=train_lf_no_missing)
+lf_predict <- predict(lf_model, newdata=train_lf_missing)
+
+train[is.na(train$LotFrontage),]$LotFrontage <- as.integer(lf_predict)
+
+library(dplyr)
+train_numeric <- train %>% select_if(is.numeric)
+
+library(corrplot)
+corrplot.mixed(cor(train_numeric, use='complete.obs'), number.cex = 0.4, tl.cex=0.5, tl.pos = "lt", order = "hclust")
