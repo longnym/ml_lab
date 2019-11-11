@@ -1,5 +1,12 @@
-train <- read.csv('train.csv')
+setwd("~/nyc_data_science/ml_lab/Sean")
 
+# load train and test data
+train <- read.csv('train.csv')
+test <- read.csv('test.csv')
+test$SalePrice <- NA
+tot.df <- rbind(train, test)
+
+# define code
 codes <- list()
 codes[['ExterQual']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')
 codes[['ExterCond']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')
@@ -19,7 +26,11 @@ codeToNum <- function(table, column) {
   result <- c()
   for (i in 1:nrow(table)) {
     if (is.na(table[i,column])) {
-      index <- which(codes[[column]] == 'NA')
+      if ('NA' %in% codes[[column]]) {  # if NA exist in the code
+        index <- which(codes[[column]] == 'NA')
+      } else {  # if NA doesn't exist in the code (only one case of KitchenQual)
+        index <- NA
+      }
     } else {
       index <- which(codes[[column]] == table[i,column])
     }
@@ -30,27 +41,55 @@ codeToNum <- function(table, column) {
 
 # change factor to category(ordinal)
 for (n in names(codes)) {
-  train[n] <- codeToNum(train, n)
+  tot.df[n] <- codeToNum(tot.df, n)
 }
 
 # change numeric to factor
-train$MSSubClass = as.factor(train$MSSubClass)
+tot.df$MSSubClass = as.factor(tot.df$MSSubClass)
 
 # Impute NA's of MasVnrType, MasVnrArea
-train[is.na(train$MasVnrType),]$MasVnrArea <- 0
-train[is.na(train$MasVnrType),]$MasVnrType <- 'None'
+tot.df[is.na(tot.df$MasVnrType),]$MasVnrArea <- 0
+tot.df[is.na(tot.df$MasVnrType),]$MasVnrType <- 'None'
 
 # impute NA's of LotFrantage (Simple Linier Regression)
-train_lf_missing <- train[is.na(train$LotFrontage),]
-train_lf_no_missing <- train[!is.na(train$LotFrontage),]
+lf_missing <- tot.df[is.na(tot.df$LotFrontage),]
+lf_no_missing <- tot.df[!is.na(tot.df$LotFrontage),]
 
-lf_model <- lm(LotFrontage ~ LotArea, data=train_lf_no_missing)
-lf_predict <- predict(lf_model, newdata=train_lf_missing)
+lf_model <- lm(LotFrontage ~ LotArea, data=lf_no_missing)
+lf_predict <- predict(lf_model, newdata=lf_missing)
 
-train[is.na(train$LotFrontage),]$LotFrontage <- as.integer(lf_predict)
+tot.df[is.na(tot.df$LotFrontage),]$LotFrontage <- as.integer(lf_predict)
 
+######## TEST
+# select only numeric variables
 library(dplyr)
-train_numeric <- train %>% select_if(is.numeric)
+tot.df.test <- tot.df %>% select_if(is.numeric)
 
+cor(tot.df.test)
+
+# check correlation
 library(corrplot)
-corrplot.mixed(cor(train_numeric, use='complete.obs'), number.cex = 0.4, tl.cex=0.5, tl.pos = "lt", order = "hclust")
+corrplot.mixed(cor(train, use='complete.obs'), number.cex = 0.4, tl.cex=0.7, tl.pos = 'lt', order = 'hclust')
+
+# divide train & test
+set.seed(0)
+index <- sample(1:nrow(train), nrow(train) * 0.8)
+
+train_new <- train[index,]
+test_new <- train[-index,]
+
+# multi linear regression model
+sample_submission <- lm(SalePrice ~ YrSold + MoSold + LotArea + BedroomAbvGr, data=train_new)
+sale_model <- lm(SalePrice ~ . - GrLivArea - TotalBsmtSF - GarageYrBlt, data=train_new)
+
+plot(sample_submission)
+
+require(car)
+summary(sale_model)
+vif(sale_model)
+
+test_new$Predict <- predict(sale_model, newdata=test_new)
+
+library(Metrics)
+rmse(test_new$SalePrice, test_new$Predict)
+mae(test_new$SalePrice, test_new$Predict)

@@ -62,6 +62,7 @@ write.csv(na, "na.csv")
 
 ## KWAK modify : train -> tot.df
 
+# define code
 codes <- list()
 codes[['ExterQual']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')
 codes[['ExterCond']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')
@@ -81,7 +82,11 @@ codeToNum <- function(table, column) {
   result <- c()
   for (i in 1:nrow(table)) {
     if (is.na(table[i,column])) {
-      index <- which(codes[[column]] == 'NA')
+      if ('NA' %in% codes[[column]]) {  # if NA exist in the code
+        index <- which(codes[[column]] == 'NA')
+      } else {  # if NA doesn't exist in the code (only one case of KitchenQual)
+        index <- NA
+      }
     } else {
       index <- which(codes[[column]] == table[i,column])
     }
@@ -95,7 +100,6 @@ for (n in names(codes)) {
   tot.df[n] <- codeToNum(tot.df, n)
 }
 
-
 # change numeric to factor
 tot.df$MSSubClass = as.factor(tot.df$MSSubClass)
 
@@ -104,20 +108,13 @@ tot.df[is.na(tot.df$MasVnrType),]$MasVnrArea <- 0
 tot.df[is.na(tot.df$MasVnrType),]$MasVnrType <- 'None'
 
 # impute NA's of LotFrantage (Simple Linier Regression)
-tot.df_lf_missing <- tot.df[is.na(tot.df$LotFrontage),]
-tot.df_lf_no_missing <- tot.df[!is.na(tot.df$LotFrontage),]
+lf_missing <- tot.df[is.na(tot.df$LotFrontage),]
+lf_no_missing <- tot.df[!is.na(tot.df$LotFrontage),]
 
-lf_model <- lm(LotFrontage ~ LotArea, data=tot.df_lf_no_missing)
-lf_predict <- predict(lf_model, newdata=tot.df_lf_missing)
+lf_model <- lm(LotFrontage ~ LotArea, data=lf_no_missing)
+lf_predict <- predict(lf_model, newdata=lf_missing)
 
 tot.df[is.na(tot.df$LotFrontage),]$LotFrontage <- as.integer(lf_predict)
-
-library(dplyr)
-tot.df_numeric <- tot.df %>% select_if(is.numeric)
-
-library(corrplot)
-corrplot.mixed(cor(tot.df_numeric, use='complete.obs'), number.cex = 0.4, tl.cex=0.5, tl.pos = "lt", order = "hclust")
-
 
 ################################ Sean End ##################################
 
