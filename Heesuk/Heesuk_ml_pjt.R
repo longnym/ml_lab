@@ -116,6 +116,47 @@ lf_predict <- predict(lf_model, newdata=lf_missing)
 
 tot.df[is.na(tot.df$LotFrontage),]$LotFrontage <- as.integer(lf_predict)
 
+# impute NA's of GarageYrBlt 
+tot.df$GarageYrBlt <- ifelse((is.na(tot.df$GarageYrBlt) & !is.na(tot.df$GarageType)), tot.df$YearBuilt, tot.df$GarageYrBlt)
+
+# impute NA's of SaleType
+tot.df[is.na(tot.df$SaleType),]$SaleType <- 'Oth'
+
+# impute NA's of GarageFinish, GarageCars, GarageArea
+tot.df[!is.na(tot.df$GarageType) & is.na(tot.df$GarageFinish),]$GarageFinish <- 'Unf' # has GarageYrBlt
+tot.df[is.na(tot.df$GarageCars),]$GarageArea <- 0
+tot.df[is.na(tot.df$GarageCars),]$GarageCars <- 0
+
+# impute NA's of Functional
+tot.df[is.na(tot.df$Functional),]$Functional <- 'Typ' # most frequent
+
+# impute NA's of KitchenQual
+tot.df[is.na(tot.df$KitchenQual),]$KitchenQual <- 3 # median
+
+# impute NA's of BsmtFullBath, BsmtHalfBath
+tot.df[is.na(tot.df$BsmtFullBath),]$BsmtFullBath <- 0
+tot.df[is.na(tot.df$BsmtHalfBath),]$BsmtHalfBath <- 0
+
+# impute NA's of Electrical
+tot.df[is.na(tot.df$Electrical),]$Electrical <- 'FuseA' # most frequent
+
+# impute NA's of BsmtFinSF1, BsmtFinSF2, BsmtUnfSF, TotalBsmtSF
+tot.df[is.na(tot.df$TotalBsmtSF),]$TotalBsmtSF <- 0 # BsmtFinType1 = NA, BsmtFinType2 = NA
+tot.df[is.na(tot.df$BsmtUnfSF),]$BsmtUnfSF <- 0
+tot.df[is.na(tot.df$BsmtFinSF1),]$BsmtFinSF1 <- 0
+tot.df[is.na(tot.df$BsmtFinSF2),]$BsmtFinSF2 <- 0
+
+# impute NA's of Exterior1st, Exterior2st
+levels(tot.df$Exterior1st) <- c(levels(tot.df$Exterior1st), 'Other')
+tot.df[is.na(tot.df$Exterior1st),]$Exterior1st <- 'Other'
+tot.df[is.na(tot.df$Exterior2nd),]$Exterior2nd <- 'Other'
+
+# impute NA's of Utilities
+tot.df[is.na(tot.df$Utilities),]$Utilities <- 'AllPub'  # most frequent
+
+# impute NA's of MSZoning
+tot.df[is.na(tot.df$MSZoning),]$MSZoning <- 'RL'  # most frequent
+
 ################################ Sean End ##################################
 
 
