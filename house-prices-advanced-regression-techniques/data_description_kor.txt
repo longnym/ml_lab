@@ -237,7 +237,7 @@ Exterior2nd: 집의 외부 표면 (한가지 재료 이상일 경우)
        Stucco	회반죽
        VinylSd	비닐 판자
        Wd Sdng	나무 판자
-       WdShing	나무 슁글
+       Wd Shng	나무 슁글
 
 MasVnrType: 석조 표면 마무리(다른 재료,구조 형식으로 보이기 위한） 유형
 
