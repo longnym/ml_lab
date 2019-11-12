@@ -226,7 +226,7 @@ Exterior2nd: 집의 외부 표면 (한가지 재료 이상일 경우)
        BrkComm	붉은 벽돌 (보통)
        BrkFace	붉은 벽돌 (압축률과 품질이 높음)
        CBlock	회색 석탄 벽돌
-       CemntBd	시멘트 보드
+       CmentBd	시멘트 보드
        HdBoard	하드 보드
        ImStucc	인조 회반죽
        MetalSd	금속 판자
