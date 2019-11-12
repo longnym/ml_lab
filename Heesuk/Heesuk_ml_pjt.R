@@ -56,7 +56,6 @@ remove(SalePrice.corr, log.SalePrice.corr)
 
 
 ################################ Sean Start ##################################
-## NA Imputation and Class correction
 # define code
 codes <- list()
 codes[['ExterQual']] <- c('Po', 'Fa', 'TA', 'Gd', 'Ex')
