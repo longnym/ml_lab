@@ -20,4 +20,6 @@ set.seed(0)
 index <- sample(1:nrow(train), nrow(train) * 0.8)
 
 train_new <- tot.df.dummy[1:nrow(train),][index,]
-test_new <- tot.df.dummy[1:nrow(train),][-index,]
+validation_new <- tot.df.dummy[1:nrow(train),][-index,]
+
+rm(codes, dummy, lf_missing, lf_no_missing, lf_model, lf_predict, tot.df, tot.df.dummy, drop_cols, index, n)
