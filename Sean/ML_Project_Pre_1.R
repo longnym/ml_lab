@@ -113,3 +113,10 @@ tot.df[is.na(tot.df$GarageType),]$GarageType <- 'None'
 tot.df[is.na(tot.df$GarageFinish),]$GarageFinish <- 'None'
 tot.df[is.na(tot.df$Fence),]$Fence <- 'None'
 tot.df[is.na(tot.df$MiscFeature),]$MiscFeature <- 'None'
+
+# GarageYrBlt NA --> impute by 'YearBuilt'
+tot.df <- tot.df %>% transform(., GarageYrBlt = ifelse(is.na(GarageYrBlt), YearBuilt, GarageYrBlt))
+
+tot.df$log.SalePrice <- log(tot.df$SalePrice)
+
+rm(codes, lf_missing, lf_no_missing, lf_model, lf_predict, n, train, test)

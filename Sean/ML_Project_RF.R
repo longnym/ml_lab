@@ -1,20 +1,19 @@
 library(randomForest)
 
 set.seed(0)
-rf.model = randomForest(SalePrice ~ ., data = train_new)  # default : num_var / 3
+rf.model = randomForest(log.SalePrice ~ ., data = train_new)  # default : num_var / 3
 rf.model
 
 importance(rf.model)
 varImpPlot(rf.model)
 
-validation_new$Predict = NULL
-validation_new$Predict = predict(rf.model, validation_new, type = "class")
+pred = predict(rf.model, validation_new, type = "class")
 
 # RMSE
-sqrt(sum((validation_new$Predict - validation_new$SalePrice) ^ 2) / nrow(validation_new))
+sqrt(sum((exp(pred) - exp(validation_new$log.SalePrice)) ^ 2) / nrow(validation_new))
 
 # MAE
-sum(abs(validation_new$Predict - validation_new$SalePrice)) / nrow(validation_new)
+sum(abs(exp(pred) - exp(validation_new$log.SalePrice))) / nrow(validation_new)
 
 # set.seed(0)
 # oob.err = numeric(10)
