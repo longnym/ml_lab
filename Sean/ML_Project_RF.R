@@ -1,7 +1,7 @@
 library(randomForest)
 
 set.seed(0)
-rf.model = randomForest(SalePrice ~ ., data = train_new, mtry = 59) # default : 56
+rf.model = randomForest(SalePrice ~ ., data = train_new)  # default : num_var / 3
 rf.model
 
 importance(rf.model)
