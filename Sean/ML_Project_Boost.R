@@ -1,14 +1,15 @@
 library(gbm)
 
+# MSSubClass.150, Neighborhood.Blueste has no variance
 set.seed(0)
-boost.model = gbm(SalePrice ~ ., data = train_new,
+boost.model = gbm(SalePrice ~ ., data = train_new %>% select(-c(MSSubClass.150, Neighborhood.Blueste)),
                   distribution = "gaussian",
-                  n.trees = 10000,
+                  n.trees = 1000,
                   interaction.depth = 4)
 
 summary(boost.model)
 
-n.trees = seq(from = 100, to = 10000, by = 100)
+n.trees = seq(from = 100, to = 1000, by = 10)
 
 validation_new$Predict = NULL
 validation_new$Predict = predict(boost.model, newdata = validation_new, n.trees = n.trees)
