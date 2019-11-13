@@ -1,3 +1,5 @@
+library(glmnet)
+
 # divide train & test
 set.seed(0)
 index <- sample(1:nrow(train), nrow(train) * 0.8)
