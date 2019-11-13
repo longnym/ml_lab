@@ -9,6 +9,7 @@ pred = predict(xgb.mdl, dtest)
 # Compute feature importance matrix
 feature_names <- names(train_new %>% select(-log.SalePrice))
 importance_matrix <- xgb.importance(feature_names, model = xgb.mdl)
+write.csv(importance_matrix, 'xgboost_importance.csv')
 
 # Nice graph
 xgb.plot.importance(importance_matrix[1:20,])

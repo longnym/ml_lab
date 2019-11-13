@@ -21,6 +21,7 @@ imp <- as.data.frame(varImp(lasso.models.train, lambda = cv.lasso.out$lambda.min
 imp <- data.frame(names = rownames(imp), overall = imp$Overall)
 imp <- imp[order(imp$overall,decreasing = T),]
 imp
+write.csv(imp, 'lasso_importance.csv')
 
 # RMSE
 sqrt(sum((exp(pred) - exp(validation_new$log.SalePrice)) ^ 2) / nrow(validation_new))

@@ -4,7 +4,12 @@ set.seed(0)
 rf.model = randomForest(log.SalePrice ~ ., data = train_new)  # default : num_var / 3
 rf.model
 
-importance(rf.model)
+imp <- as.data.frame(importance(rf.model))
+imp <- data.frame(names = rownames(imp), overall = imp$IncNodePurity)
+imp <- imp[order(imp$overall,decreasing = T),]
+imp
+write.csv(imp, 'randomforest_importance.csv')
+
 varImpPlot(rf.model)
 
 pred = predict(rf.model, validation_new, type = "class")
