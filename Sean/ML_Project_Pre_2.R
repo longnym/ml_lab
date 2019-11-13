@@ -14,3 +14,10 @@ tot.df <- tot.df %>% select(-drop_cols)
 # convert factor to dummy
 dummy <- dummyVars( ~ ., data=tot.df, fullRank=T)
 tot.df.dummy <- data.frame(predict(dummy, newdata = tot.df))
+
+# divide train & test
+set.seed(0)
+index <- sample(1:nrow(train), nrow(train) * 0.8)
+
+train_new <- tot.df.dummy[1:nrow(train),][index,]
+test_new <- tot.df.dummy[1:nrow(train),][-index,]
