@@ -23,8 +23,14 @@ plot(n.trees, berr, pch = 16,
 
 pred = predict(boost.model, newdata = validation_new, n.trees = 200)
 
+
+library(Metrics)
+
+# RMSLE
+rmsle(exp(validation_new$log.SalePrice), exp(pred))
+
 # RMSE
-sqrt(sum((exp(pred) - exp(validation_new$log.SalePrice)) ^ 2) / nrow(validation_new))
+rmse(exp(validation_new$log.SalePrice), exp(pred))
 
 # MAE
-sum(abs(exp(pred) - exp(validation_new$log.SalePrice))) / nrow(validation_new)
+mae(exp(validation_new$log.SalePrice), exp(pred))
