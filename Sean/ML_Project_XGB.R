@@ -3,7 +3,7 @@ library(xgboost)
 dtrain <- xgb.DMatrix(data=as.matrix(train_new %>% select(-log.SalePrice)), label=train_new$log.SalePrice, missing=NA)
 dtest <- xgb.DMatrix(data=as.matrix(validation_new %>% select(-log.SalePrice)), missing=NA)
 
-foldsCV <- createFolds(train_new$log.SalePrice, k=5, list=TRUE, returnTrain=FALSE)
+foldsCV <- createFolds(train_new$log.SalePrice, k=10, list=TRUE, returnTrain=FALSE)
 
 param <- list(booster = "gblinear", objective = "reg:linear", eval_metric = 'rmse')
 xgb_cv <- xgb.cv(data = dtrain, params = param, nrounds = 1000, prediction = TRUE, maximize = FALSE,

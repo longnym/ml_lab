@@ -3,6 +3,7 @@ library(gbm)
 set.seed(0)
 boost.model = gbm(log.SalePrice ~ ., data = train_new,
                   distribution = "gaussian",
+                  cv.folds = 10,
                   n.trees = 1000,
                   interaction.depth = 4)
 
@@ -21,7 +22,8 @@ plot(n.trees, berr, pch = 16,
      xlab = "# Trees",
      main = "Boosting Test Error")
 
-pred = predict(boost.model, newdata = validation_new, n.trees = 200)
+n.tree = n.trees[which(berr == min(berr))]
+pred = predict(boost.model, newdata = validation_new, n.trees = n.tree)
 
 
 library(Metrics)
