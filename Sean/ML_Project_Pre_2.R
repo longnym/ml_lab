@@ -69,7 +69,7 @@ df.test.all[test.sd.issue] = NULL
 
 remove(df.test, df.train, tot.df, dummy, multico, clear, same.as.new.feature, single.issue, test.sd.issue, train.sd.issue)
 
-# divide train & test
+# divide train & validation
 set.seed(0)
 index <- sample(1:nrow(df.train.all), nrow(df.train.all) * 0.8)
 

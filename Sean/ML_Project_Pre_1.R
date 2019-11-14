@@ -1,3 +1,5 @@
+library(dplyr)
+
 setwd('~/nyc_data_science/ml_lab/Sean')
 
 # load train and test data
