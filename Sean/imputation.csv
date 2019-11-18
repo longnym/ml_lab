@@ -1,0 +1,35 @@
+var,sum.na,type,how to impute
+PoolQC,2909,factor,ordinal factor -> numeric
+MiscFeature,2814,factor,convert 'None'
+Alley,2721,factor,convert 'None'
+Fence,2348,factor,convert 'None'
+FireplaceQu,1420,factor,ordinal factor -> numeric
+LotFrontage,486,integer,regression (related to LotArea)
+GarageYrBlt,159,integer,replace to 'YearBuilt'
+GarageFinish,159,factor,convert 'None'
+GarageQual,159,factor,ordinal factor -> numeric
+GarageCond,159,factor,ordinal factor -> numeric
+GarageType,157,factor,convert 'None'
+BsmtCond,82,factor,ordinal factor -> numeric
+BsmtExposure,82,factor,ordinal factor -> numeric
+BsmtQual,81,factor,ordinal factor -> numeric
+BsmtFinType2,80,factor,ordinal factor -> numeric
+BsmtFinType1,79,factor,ordinal factor -> numeric
+MasVnrType,24,factor,ordinal factor -> numeric
+MasVnrArea,23,integer,impute 0
+MSZoning,4,factor,impute 'RL' (most frequent)
+Utilities,2,factor,impute 'AllPub' (most frequent)
+BsmtFullBath,2,integer,impute 0
+BsmtHalfBath,2,integer,impute 0
+Functional,2,factor,impute 'Typ' (most frequent)
+Exterior1st,1,factor,impute 'Other'
+Exterior2nd,1,factor,impute 'Other'
+BsmtFinSF1,1,integer,impute 0
+BsmtFinSF2,1,integer,impute 0
+BsmtUnfSF,1,integer,impute 0
+TotalBsmtSF,1,integer,impute 0
+Electrical,1,factor,impute 'FuseA' (most frequent)
+KitchenQual,1,factor,impute 'TA' (mean)
+GarageCars,1,integer,impute 0
+GarageArea,1,integer,impute 0
+SaleType,1,factor,impute 'Oth'

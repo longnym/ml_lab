@@ -8,7 +8,7 @@ nrounds <- c()
 # param_grid <- expand.grid(
 #   max_depth = c(3, 6, 9), # default: 6
 #   min_child_weight = c(1, 3, 5), # default: 1
-#   gamma = c(0, 0.3, 0.5), # default: 0
+#   gamma = c(0, 0.3, 1, 2), # default: 0
 #   eta = c(0.1, 0.3, 1) # default : 0.3
 # )
 

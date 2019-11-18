@@ -10,7 +10,13 @@ boost.model = gbm(log.SalePrice ~ ., data = train_new,
 imp <- as.data.frame(varImp(boost.model, numTrees = 1000))
 imp <- data.frame(names = rownames(imp), overall = imp$Overall)
 imp <- imp[order(imp$overall,decreasing = T),]
-imp
+
+ggplot(data=imp[imp$overall > 0,], aes(x=reorder(names, overall), y=overall)) +
+  geom_bar(stat='identity') +
+  scale_x_discrete(name='Variable') +
+  ylab('Overall') +
+  coord_flip()
+
 write.csv(imp, 'boosting_importance.csv')
 
 n.trees = seq(from = 50, to = 1000, by = 50)

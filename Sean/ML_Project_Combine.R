@@ -1,4 +1,3 @@
-library(caret)
 library(dplyr)
 
 setwd('~/nyc_data_science/ml_lab/Sean')
@@ -124,6 +123,8 @@ tot.df$log.SalePrice <- log(tot.df$SalePrice)
 
 rm(codes, lf_missing, lf_no_missing, lf_model, lf_predict, n, train, test)
 
+library(caret)
+
 df.train <- tot.df[1:1460,]
 df.test <- tot.df[1461:2919,]
 
@@ -175,12 +176,12 @@ tot.df[clear] = NULL
 dummy <- dummyVars( ~ ., data=tot.df, fullRank=T)
 tot.df.all <- data.frame(predict(dummy, newdata = tot.df))
 
-df.train.all <- tot.df.all[1:1457,] 
-df.test.all <- tot.df.all[1458:2916,] 
+df.train.all <- tot.df.all[1:1457,]
+df.test.all <- tot.df.all[1458:2916,]
 
-train.sd.issue <- c('MSSubClass.150', 'Exterior1st.Other') 
+train.sd.issue <- c('MSSubClass.150', 'Exterior1st.Other')
 test.sd.issue <- c('Utilities.NoSeWa', 'Condition2.RRAe', 'Condition2.RRAn', 'Condition2.RRNn',
-                   'RoofMatl.Membran', 'RoofMatl.Metal', 'RoofMatl.Roll', 'Exterior1st.ImStucc', 
+                   'RoofMatl.Membran', 'RoofMatl.Metal', 'RoofMatl.Roll', 'Exterior1st.ImStucc',
                    'Exterior1st.Stone', 'Heating.OthW', 'Electrical.Mix', 'MiscFeature.TenC')
 
 df.train.all[train.sd.issue] = NULL
@@ -206,3 +207,108 @@ index <- sample(1:nrow(df.train.all), nrow(df.train.all) * 0.8)
 
 train_new <- tot.df.all[1:nrow(df.train.all),][index,]
 validation_new <- tot.df.all[1:nrow(df.train.all),][-index,]
+
+# XGBoost
+library(xgboost)
+
+dtrain <- xgb.DMatrix(data=as.matrix(train_new %>% select(-log.SalePrice)), label=train_new$log.SalePrice, missing=NA)
+dtest <- xgb.DMatrix(data=as.matrix(validation_new %>% select(-log.SalePrice)), missing=NA)
+
+min.rmse <- c()
+nrounds <- c()
+param_grid <- expand.grid(
+  max_depth = c(9), # default: 6
+  min_child_weight = c(1), # default: 1
+  gamma = c(0.3), # default: 0
+  eta = c(1.0) # default : 0.3
+)
+
+for(i in 1:nrow(param_grid)) {
+  print(paste0(i,' iteration of ', nrow(param_grid)))
+  param <- list(
+    booster = 'gblinear',
+    objective = 'reg:squarederror',
+    eval_metric = 'rmse',
+    gamma = param_grid$gamma[i],
+    eta = param_grid$eta[i],
+    max_depth = param_grid$max_depth[i],
+    min_child_weight = param_grid$min_child_weight[i]
+  )
+  foldsCV <- createFolds(train_new$log.SalePrice, k=10, list=TRUE, returnTrain=FALSE)
+  xgb_cv <- xgb.cv(data = dtrain, params = param, nrounds = 2000, prediction = TRUE, maximize = FALSE,
+                   folds = foldsCV, print_every_n = 100)
+  
+  min.rmse[i] <- min(xgb_cv$evaluation_log$test_rmse_mean)
+  nrounds[i] <- min(which(xgb_cv$evaluation_log$test_rmse_mean == min(xgb_cv$evaluation_log$test_rmse_mean)))
+}
+
+best <- which(min.rmse == min(min.rmse))
+
+param.new <- list(booster = "gblinear",
+                  objective = "reg:squarederror",
+                  eval_metric = 'rmse',
+                  gamma = param_grid$gamma[best],
+                  eta = param_grid$eta[best],
+                  max_depth = param_grid$max_depth[best],
+                  min_child_weight = param_grid$min_child_weight[best])
+xgb.mdl <- xgb.train(data = dtrain, nround=nrounds[best], params = param.new)
+pred1 <- predict(xgb.mdl, dtest)
+pred1 <- exp(pred1)
+
+
+# GBM
+library(gbm)
+
+set.seed(0)
+boost.model <- gbm(log.SalePrice ~ ., data = train_new,
+                   distribution = "gaussian",
+                   cv.folds = 10,
+                   n.trees = 1000,
+                   interaction.depth = 4)
+
+pred2 <- predict(boost.model, newdata = validation_new, n.trees = 150)
+pred2 <- exp(pred2)
+
+
+# SVM
+library(e1071)
+
+svm.model = svm(log.SalePrice ~ ., data = train_new, kernel = 'linear')
+
+pred3 = predict(svm.model, validation_new %>% select(-log.SalePrice))
+pred3 <- exp(pred3)
+
+
+# Linear
+library(caret)
+
+# multi linear regression model
+sale_model <- train(log.SalePrice ~ ., train_new, method = "lm",
+                    trControl = trainControl(method = "cv", number = 10, verboseIter = TRUE))
+
+pred4 <- predict(sale_model, newdata=validation_new)
+pred4 <- exp(pred4)
+
+
+# Random Forest
+library(randomForest)
+
+set.seed(0)
+rf.model = randomForest(log.SalePrice ~ ., data = train_new)
+
+pred5 = predict(rf.model, validation_new, type = "class")
+pred5 <- exp(pred5)
+
+
+pred <- (pred1 + pred2 + pred5) / 3
+
+library(Metrics)
+
+# RMSLE
+rmsle(exp(validation_new$log.SalePrice), pred)
+
+# RMSE
+rmse(exp(validation_new$log.SalePrice), pred)
+
+# MAE
+mae(exp(validation_new$log.SalePrice), pred)

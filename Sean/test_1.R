@@ -117,88 +117,48 @@ tot.df[is.na(tot.df$GarageFinish),]$GarageFinish <- 'None'
 tot.df[is.na(tot.df$Fence),]$Fence <- 'None'
 tot.df[is.na(tot.df$MiscFeature),]$MiscFeature <- 'None'
 
-# GarageYrBlt NA --> impute by 'YearBuilt'
-tot.df <- tot.df %>% transform(., GarageYrBlt = ifelse(is.na(GarageYrBlt), YearBuilt, GarageYrBlt))
-
+####################################
 tot.df$log.SalePrice <- log(tot.df$SalePrice)
 
 rm(codes, lf_missing, lf_no_missing, lf_model, lf_predict, n, train, test)
 
-df.train <- tot.df[1:1460,]
-df.test <- tot.df[1461:2919,]
+# 1stFlrSF + 2ndFlrSF + LowQualFinSF = GrLivArea
+# BsmtFinSF1 + BsmtFinSF2 + BsmtUnfSF = TotalBsmtSF
+# BldgType, HouseStyle -> MSSubClass
+# MiscFeature < MiscVal
+# Exterior2nd : Almost Similar with Exterior1nd
+drop_cols <- c('SalePrice', 'Id', 'X1stFlrSF', 'X2ndFlrSF', 'LowQualFinSF', 'BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF',
+               'BldgType', 'HouseStyle', 'MiscFeature', 'Exterior2nd', 'OverallQual')
+tot.df <- tot.df %>% select(-drop_cols)
 
-## Outlier Removal
-tot.df <- subset(tot.df, !(tot.df$Id %in% c('524', '1299', '582')))
-df.train <- subset(df.train, !(df.train$Id %in% c('524', '1299', '582')))
+tot.df$tot.space <- 2 * tot.df$GrLivArea + tot.df$TotalBsmtSF + tot.df$GarageArea
+drop_space <- c('GrLivArea', 'TotalBsmtSF', 'GarageArea')
+tot.df <- tot.df %>% select(-drop_space)
 
-# multicollinearity : X1stFlrSF, X2ndFlrSF, LowQualFinSF, BsmtFinSF1, BsmtFinSF2, BsmtUnfSF
-single.issue <- c('X1stFlrSF', 'X2ndFlrSF', 'LowQualFinSF', 'BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF')
-df.train[single.issue] = NULL
-df.test[single.issue] = NULL
-tot.df[single.issue] = NULL
+# Porch.space (New) = OpenPorchSF + EnclosedPorch + X3SsnPorch + ScreenPorch
+tot.df$Porch.space <- tot.df$OpenPorchSF + tot.df$EnclosedPorch + tot.df$X3SsnPorch + tot.df$ScreenPorch
+drop_porche <- c('OpenPorchSF', 'EnclosedPorch', 'X3SsnPorch', 'ScreenPorch')
+tot.df <- tot.df %>% select(-drop_porche)
 
-# singularity : BldgType, GarageFinish, HouseStyle, Exterior2nd, 
-single.issue <- c('BldgType', 'GarageFinish', 'HouseStyle', 'Exterior2nd')
-df.train[single.issue] = NULL
-df.test[single.issue] = NULL
-tot.df[single.issue] = NULL
 
-df.train$tot.space <- (df.train$TotalBsmtSF + 5 * df.train$GrLivArea + df.train$GarageArea)
-df.test$tot.space <- (df.test$TotalBsmtSF + 5 * df.test$GrLivArea + df.test$GarageArea)
-tot.df$tot.space <- (tot.df$TotalBsmtSF + 5 * tot.df$GrLivArea + tot.df$GarageArea)
 
-df.train$built.period <- (df.train$YrSold - df.train$YearBuilt)
-df.test$built.period <- (df.test$YrSold - df.test$YearBuilt)
-tot.df$built.period <- (tot.df$YrSold - tot.df$YearBuilt)
-
-df.train$remod.period <- (df.train$YrSold - df.train$YearRemodAdd)
-df.test$remod.period <- (df.test$YrSold - df.test$YearRemodAdd)
-tot.df$remod.period <- (tot.df$YrSold - tot.df$YearRemodAdd)
-
-# 파생변수와 동일한 feature deletion 
-same.as.new.feature <- c("TotalBsmtSF", "GrLivArea", "GarageArea","YearBuilt", "YrSold","YearRemodAdd")
-df.train[same.as.new.feature] = NULL
-df.test[same.as.new.feature] = NULL
-tot.df[same.as.new.feature] = NULL
-
-multico <- c("ExterQual", "BsmtQual", "FireplaceQu","GarageCond", "PoolQC")
-df.train[multico] = NULL
-df.test[multico] = NULL
-tot.df[multico] = NULL
-
-clear <- c("SalePrice", "Id")
-df.train[clear] = NULL
-df.test[clear] = NULL
-tot.df[clear] = NULL
+#############################################
 
 # convert factor to dummy
 dummy <- dummyVars( ~ ., data=tot.df, fullRank=T)
 tot.df.all <- data.frame(predict(dummy, newdata = tot.df))
 
+
+drop_garbage <- c('MSSubClass.150', 'Exterior1st.Other', 'GarageYrBlt')
+tot.df.all <- tot.df.all %>% select(-drop_garbage)
+
+
 df.train.all <- tot.df.all[1:1457,] 
-df.test.all <- tot.df.all[1458:2916,] 
+df.test.all <- tot.df.all[1458:2916,]
 
-train.sd.issue <- c('MSSubClass.150', 'Exterior1st.Other') 
-test.sd.issue <- c('Utilities.NoSeWa', 'Condition2.RRAe', 'Condition2.RRAn', 'Condition2.RRNn',
-                   'RoofMatl.Membran', 'RoofMatl.Metal', 'RoofMatl.Roll', 'Exterior1st.ImStucc', 
-                   'Exterior1st.Stone', 'Heating.OthW', 'Electrical.Mix', 'MiscFeature.TenC')
+corr <- cor(df.train.all, df.train.all$log.SalePrice)
 
-df.train.all[train.sd.issue] = NULL
-tot.df.all[train.sd.issue] = NULL
-df.test.all[train.sd.issue] = NULL
-
-df.train.all[test.sd.issue] = NULL
-tot.df.all[test.sd.issue] = NULL
-df.test.all[test.sd.issue] = NULL
-
-remove(df.test, df.train, tot.df, dummy, multico, clear, same.as.new.feature, single.issue, test.sd.issue, train.sd.issue)
-
-tier.top <- c('tot.space','OverallQual','KitchenQual','built.period','remod.period','Fireplaces')
-tier.2nd <- c('LotArea','OverallCond','CentralAir.Y','FullBath','GarageCars','GarageYrBlt','LotFrontage','MasVnrArea','MSSubClass.60','BsmtFinType1','TotRmsAbvGrd','HeatingQC','OpenPorchSF','MSZoning.RL','MSZoning.RM','GarageType.Attchd','HalfBath','BsmtFullBath','Foundation.PConc')
-tier.3rd <- c('BsmtExposure','WoodDeckSF','Neighborhood.Crawfor','GarageQual','MSSubClass.30','GarageType.Detchd','BedroomAbvGr','LotShape.Reg','Neighborhood.IDOTRR','SaleCondition.Normal','Neighborhood.OldTown','SaleType.New','Exterior1st.VinylSd','ScreenPorch','SaleCondition.Family','Fence.None','KitchenAbvGr','LotConfig.Inside','MoSold','MasVnrType.None','Neighborhood.NridgHt')
-tier.4th <- c('EnclosedPorch','BsmtCond','Foundation.CBlock','GarageType.None','ExterCond','Exterior1st.BrkFace','PavedDrive.Y','RoofStyle.Gable','Neighborhood.BrkSide','Exterior1st.Wd.Sdng','Functional.Typ','SaleType.WD','SaleCondition.Partial','Neighborhood.NAmes','MSSubClass.50','Exterior1st.MetalSd','Electrical.SBrkr','LotConfig.CulDSac','Condition1.Norm','MSSubClass.160','Neighborhood.MeadowV','Neighborhood.StoneBr')
-
-tot.df.all <- tot.df.all %>% select(c(c('log.SalePrice'), tier.top, tier.2nd))
+remove(tot.df, dummy)
 
 # divide train & validation
 set.seed(0)
