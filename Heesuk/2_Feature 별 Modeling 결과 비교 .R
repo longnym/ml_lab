@@ -4,7 +4,7 @@ library(ggplot2)
 library(corrplot)
 library(caret)
 library(doMC)
-library(xgboostboost)
+library(xgboost)
 
 df.train.all <- read.csv("df.train.all.csv")
 df.train.all <- df.train.all[,-1]
